@@ -1,6 +1,5 @@
-import pyaudio
 import numpy as np
-import time
+import wave
 
 # Morse code dictionary
 MORSE_CODE = {
@@ -16,48 +15,52 @@ MORSE_CODE = {
 }
 
 # Audio settings
-FREQ = 800      # frequency (Hz)
-DOT = 0.2       # duration of a dot (s)
+FREQ = 800           # Hz
+DOT = 0.2            # seconds
 DASH = DOT * 3
-GAP = DOT       # gap between elements
+GAP = DOT            # gap between elements
 LETTER_GAP = DOT * 3
 WORD_GAP = DOT * 7
+SAMPLE_RATE = 44100  # samples per second
 
-# PyAudio init
-p = pyaudio.PyAudio()
+def make_tone(duration):
+    t = np.linspace(0, duration, int(SAMPLE_RATE*duration), False)
+    tone = 0.5 * np.sin(FREQ * 2 * np.pi * t)
+    return tone
 
-def play_tone(duration):
-    """Generate and play a sine wave for the given duration."""
-    volume = 0.5
-    fs = 44100
-    samples = (np.sin(2 * np.pi * np.arange(int(fs * duration)) * FREQ / fs)).astype(np.float32)
+def make_silence(duration):
+    return np.zeros(int(SAMPLE_RATE*duration))
 
-    stream = p.open(format=pyaudio.paFloat32,
-                    channels=1,
-                    rate=fs,
-                    output=True)
-    stream.write(volume * samples)
-    stream.stop_stream()
-    stream.close()
-
-def play_morse(text):
+def text_to_morse_wav(text, filename="output.wav"):
     text = text.upper()
+    audio = np.array([], dtype=np.float32)
+
     for char in text:
         if char == " ":
-            time.sleep(WORD_GAP)
+            audio = np.concatenate((audio, make_silence(WORD_GAP)))
         elif char in MORSE_CODE:
             for symbol in MORSE_CODE[char]:
                 if symbol == ".":
-                    play_tone(DOT)
+                    audio = np.concatenate((audio, make_tone(DOT)))
                 elif symbol == "-":
-                    play_tone(DASH)
-                time.sleep(GAP)
-            time.sleep(LETTER_GAP - GAP)
+                    audio = np.concatenate((audio, make_tone(DASH)))
+                audio = np.concatenate((audio, make_silence(GAP)))
+            audio = np.concatenate((audio, make_silence(LETTER_GAP - GAP)))
+
+    # Convert to 16-bit PCM
+    audio_int16 = (audio * 32767).astype(np.int16)
+
+    # Write WAV file
+    with wave.open(filename, "w") as f:
+        f.setnchannels(1)
+        f.setsampwidth(2)
+        f.setframerate(SAMPLE_RATE)
+        f.writeframes(audio_int16.tobytes())
+
+    print(f"Morse code audio saved to {filename}")
 
 if __name__ == "__main__":
     word = input("Enter a word: ")
     morse = " ".join(MORSE_CODE[c] for c in word.upper() if c in MORSE_CODE)
     print(f"Morse code: {morse}")
-    play_morse(word)
-
-    p.terminate()
+    text_to_morse_wav(word)
