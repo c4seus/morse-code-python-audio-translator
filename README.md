@@ -16,3 +16,10 @@ Morse code: ... --- ...
 ```
 
 The program will play the Morse code as short and long beeps.
+
+## Requirements
+* Python 3.x
+* Install dependencies:
+```bash
+pip install -r requirements.txt
+```
