@@ -16,7 +16,3 @@ Morse code: ... --- ...
 ```
 
 The program will play the Morse code as short and long beeps.
-
-## Requirements
-* Python 3.x
-* winsound (Windows only) or simpleaudio for cross-platform support.
