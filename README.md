@@ -25,11 +25,3 @@ The program will play the Morse code as short and long beeps.
 ```bash
 pip install -r requirements.txt
 ```
-
-### Optional (Linux only)
-No longer required for WAV output, but if you use PyAudio in the future:
-```bash
-sudo apt update
-sudo apt install portaudio19-dev python3-dev build-essential
-```
-
