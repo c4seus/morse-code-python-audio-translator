@@ -18,8 +18,16 @@ Morse code: ... --- ...
 The program will play the Morse code as short and long beeps.
 
 ## Requirements
+### Ubuntu/Debian
+
+```bash
+sudo apt update
+sudo apt install portaudio19-dev python3-dev build-essential
+```
+
 * Python 3.x
 * Install dependencies:
 ```bash
 pip install -r requirements.txt
 ```
+
